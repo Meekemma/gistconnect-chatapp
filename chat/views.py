@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from django.db.models import Q
 from django.contrib.auth import get_user_model
-from .models import PrivateChatRoom
+from .models import *
 from .serializers import PrivateChatRoomSerializer,MessageSerializer
 
 User = get_user_model()
@@ -85,7 +85,7 @@ def get_user_chats(request):
         Q(participant_1=request.user, is_deleted_for_participant_1=False) |
         Q(participant_2=request.user, is_deleted_for_participant_2=False)
     )
-    serializer = PrivateChatRoomSerializer(rooms, many=True)
+    serializer = PrivateChatRoomSerializer(rooms, many=True, context={'request': request})
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -114,9 +114,16 @@ def get_user_message(request, room_id):
 
 
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def total_unread_count(request):
+    count = Message.objects.filter(
+        conversation__in = PrivateChatRoom.objects.filter(
+            Q(participant_1=request.user, is_deleted_for_participant_1=False) |
+            Q(participant_2=request.user, is_deleted_for_participant_2=False)
+        ),
+        is_read=False
+    ).exclude(sender=request.user).count()
 
-
-
-
-
+    return Response({'total_unread': count})
 

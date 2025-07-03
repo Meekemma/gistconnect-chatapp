@@ -16,11 +16,17 @@ class UserPublicSerializer(serializers.ModelSerializer):
 class PrivateChatRoomSerializer(serializers.ModelSerializer):
     participant_1 = serializers.SlugRelatedField(slug_field='username', read_only=True)
     participant_2 = serializers.SlugRelatedField(slug_field='username', read_only=True)
+    unread_count = serializers.SerializerMethodField()
+
 
     class Meta:
         model = PrivateChatRoom
-        fields = ['id', 'participant_1', 'participant_2', 'created_at']
+        fields = ['id', 'participant_1', 'participant_2', 'created_at', 'unread_count']
         read_only_fields = ['id', 'created_at']
+
+    def get_unread_count(self, obj):
+        user = self.context['request'].user
+        return obj.messages.filter(is_read=False).exclude(sender=user).count()
 
 
 # Message serializer for both read and write
