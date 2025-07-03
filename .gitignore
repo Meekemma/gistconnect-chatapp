@@ -1,0 +1,57 @@
+# Python virtual environments
+env/
+.venv/
+venv/
+ENV/
+
+# Environment variables
+*.env
+
+# SQLite database
+*.sqlite3
+
+# Python cache and compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Logs and PID files
+*.log
+*.pid
+
+# Django static and media files (collected/generated)
+staticfiles/
+media/
+
+# MacOS / Windows system files
+.DS_Store
+Thumbs.db
+
+# Editor/IDE settings
+.vscode/
+.idea/
+
+# Coverage and test results
+htmlcov/
+.coverage
+coverage.xml
+*.cover
+.cache
+.pytest_cache/
+nosetests.xml
+
+# Debug toolbar cache
+debug_toolbar/
+
+# Heroku files
+*.swp
+*.bak
+
+# Docker override files
+docker-compose.override.yml
+
+# Node/npm build artifacts (if using a frontend)
+node_modules/
+build/
+dist/
+*.tsbuildinfo
