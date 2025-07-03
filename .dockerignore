@@ -1,0 +1,44 @@
+# Ignore Python bytecode files
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.swp
+
+# Ignore virtual environments
+venv/
+env/
+*.egg-info/
+*.eggs/
+
+# Ignore Django-related files
+*.log
+*.sqlite3
+db.sqlite3
+
+# Ignore media and static files (unless you need them in the container)
+media/
+static/
+
+# Ignore IDE/editor-specific files
+.vscode/
+.idea/
+
+# Ignore Docker-related files
+docker-compose.yml
+Dockerfile
+
+# Ignore git-related files
+.git
+.gitignore
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
+
+# Ignore test/coverage directories
+.coverage
+nosetests.xml
+coverage.xml
+*.cover
+*.log

@@ -1,0 +1,61 @@
+services:
+  backend:
+    container_name: Gist_Connect
+    build:
+      context: .
+    command: daphne -b 0.0.0.0 -p 8000 gistconnect.asgi:application
+    ports:
+      - "8001:8000"
+    volumes:
+      - .:/usr/src/app
+      - ./db.sqlite3:/usr/src/app/db.sqlite3
+    depends_on:
+      redis:
+        condition: service_healthy
+    env_file:
+      - .env
+    restart: always
+
+  redis:
+    image: redis:alpine
+    container_name: redis_server_gist
+    restart: always
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  celery:
+    build: .
+    container_name: celery_worker_gist
+    command: celery -A gistconnect worker --loglevel=info
+    volumes:
+      - .:/usr/src/app
+      - ./db.sqlite3:/usr/src/app/db.sqlite3
+    depends_on:
+      redis:
+        condition: service_healthy
+      backend:
+        condition: service_started
+    env_file:
+      - .env
+    restart: always
+
+  celery-beat:
+    build: .
+    container_name: celery_beat_gist
+    command: celery -A gistconnect beat --loglevel=info
+    volumes:
+      - .:/usr/src/app
+      - ./db.sqlite3:/usr/src/app/db.sqlite3
+    depends_on:
+      redis:
+        condition: service_healthy
+      backend:
+        condition: service_started
+    env_file:
+      - .env
+    restart: always

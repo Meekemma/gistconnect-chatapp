@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Verify Your Email</title>
+</head>
+<body style="background-color: #F5F5F5; color: #333333; font-family: Arial, sans-serif; padding: 20px;">
+    <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 10px;">
+        <h2 style="color: #333333;">Hi {{ first_name }} {{ last_name }},</h2>
+
+        <p>Thanks for signing up on <strong>{{ site_name }}</strong>!</p>
+
+        <p>Please use the OTP below to verify your email address:</p>
+
+        <h3 style="color: #222222; font-size: 26px; font-weight: bold; margin: 20px 0;">{{ otp_code }}</h3>
+
+        <p>This code is valid for <strong>5 minutes</strong>. If you didn’t initiate this request, feel free to ignore this message.</p>
+
+        <p>If you need help, contact us at 
+            <a href="mailto:{{ support_email }}" style="color: #1a73e8;">{{ support_email }}</a>.
+        </p>
+
+        <p style="margin-top: 30px;">Best regards,<br><strong>The Bitphyte Team</strong></p>
+    </div>
+</body>
+</html>
