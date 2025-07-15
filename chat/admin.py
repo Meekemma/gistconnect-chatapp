@@ -46,7 +46,7 @@ class GroupChatRoomAdmin(admin.ModelAdmin):
             'fields': ('name', 'description', 'created_by')
         }),
         ('Settings', {
-            'fields': ('is_private', 'max_members', 'is_active')
+            'fields': ('is_private', 'is_active')  
         }),
         ('System Info', {
             'fields': ('id', 'created_at', 'updated_at', 'member_count_display'),
@@ -66,6 +66,7 @@ class GroupChatRoomAdmin(admin.ModelAdmin):
     
     def get_queryset(self, request):
         return super().get_queryset(request).select_related('created_by')
+
 
 
 class GroupMemberInline(admin.TabularInline):

@@ -47,6 +47,7 @@ class Message(models.Model):
 
 
 
+MAX_GROUP_MEMBERS = 250
 
 class GroupChatRoom(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -54,7 +55,7 @@ class GroupChatRoom(models.Model):
     description = models.TextField(blank=True, null=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='created_groups')
     is_private = models.BooleanField(default=False)
-    max_members = models.PositiveIntegerField(default=100)
+    max_members = models.PositiveIntegerField(default=250, editable=False)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
