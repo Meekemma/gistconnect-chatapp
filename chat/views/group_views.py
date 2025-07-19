@@ -1,15 +1,19 @@
 import uuid
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, parser_classes
 from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from django.db.models import Q
 from django.contrib.auth import get_user_model
 from ..models import *
-from chat.serializers import GroupMemberSerializer,GroupChatRoomSerializer
+from chat.serializers import GroupMemberSerializer,GroupChatRoomSerializer,GroupMessageSerializer
 
 User = get_user_model()
+
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 
 # chat/views/group.py
 
@@ -168,3 +172,98 @@ def leave_group(request, group_id):
 
     member.delete()
     return Response({'message': 'You have successfully left the group.'}, status=status.HTTP_204_NO_CONTENT)
+
+
+
+
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_group_messages(request, group_id):
+    group = get_object_or_404(GroupChatRoom, id=group_id)
+
+    # Check if the user is a member via GroupMember model
+    is_member = GroupMember.objects.filter(group=group, user=request.user).exists()
+    if not is_member:
+        return Response({"detail": "You are not a member of this group."}, status=403)
+
+    messages = GroupMessage.objects.filter(group=group).select_related('sender', 'reply_to').order_by('timestamp')
+    serializer = GroupMessageSerializer(messages, many=True)
+    return Response(serializer.data)
+
+
+
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@parser_classes([MultiPartParser, FormParser])
+def GroupFileUpload(request, group_id):
+    user = request.user
+    group = get_object_or_404(GroupChatRoom, id=group_id)
+
+    doc = request.FILES.get('doc')
+    image = request.FILES.get('image')
+    caption = request.data.get('caption', '')
+
+    if not doc and not image:
+        return Response({'error': 'No file or image provided.'}, status=400)
+
+    message_type = 'doc' if doc else 'image'
+
+    # Save message
+    message = GroupMessage.objects.create(
+        group=group,
+        sender=user,
+        message_type=message_type,
+        doc=doc if doc else None,
+        image=image if image else None,
+        content=caption
+    )
+
+    # Broadcast to WebSocket group
+    channel_layer = get_channel_layer()
+    file_url = request.build_absolute_uri(message.doc.url if message_type == 'doc' else message.image.url)
+
+    async_to_sync(channel_layer.group_send)(
+        f"group_{group_id}",
+        {
+            'type': 'group_message',
+            'message_id': str(message.id),
+            'message': caption,
+            'file_url': file_url,
+            'sender_id': str(user.id),
+            'sender_username': user.username,
+            'message_type': message_type,
+            'timestamp': message.timestamp.isoformat(),
+            'reply_to': None
+        }
+    )
+
+    return Response({
+        "id": str(message.id),
+        "type": message.message_type,
+        "url": file_url,
+        "caption": caption,
+        "timestamp": message.timestamp
+    })
+
+
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_messages(request, group_id):
+    group = get_object_or_404(GroupChatRoom, id=group_id)
+
+    message_id = request.data.get('message_id')
+    if not message_id:
+        return Response({'detail': 'Message ID is required'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        message = GroupMessage.objects.get(id=message_id,  group=group, sender=request.user)
+        message.delete()
+        return Response({'detail': 'Message deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+    except GroupMessage.DoesNotExist:
+        return Response({'detail': 'Message not found or not owned by user'}, status=status.HTTP_404_NOT_FOUND)

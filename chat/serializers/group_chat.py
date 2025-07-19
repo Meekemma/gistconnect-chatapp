@@ -2,6 +2,7 @@ from rest_framework import serializers
 from chat.models import (
     GroupChatRoom,
     GroupMember,
+    GroupMessage,
 )
 from django.contrib.auth import get_user_model
 
@@ -153,3 +154,15 @@ class GroupChatRoomSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError("You already have a group with this name.")
 
         return data
+
+
+class GroupMessageSerializer(serializers.ModelSerializer):
+    # group = serializers.PrimaryKeyRelatedField(read_only=True)
+    sender = UserPublicSerializer(read_only=True)
+    id = serializers.UUIDField(read_only=True)
+    class Meta:
+        model = GroupMessage
+        fields = [ 'sender', 'content', 'message_type','reply_to', 'timestamp','is_edited','edited_at']
+
+        read_only_fields = ['timestamp','is_edited', 'edited_at']
+        

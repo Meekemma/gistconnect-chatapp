@@ -104,7 +104,7 @@ class GroupMemberAdmin(admin.ModelAdmin):
 
 @admin.register(GroupMessage)
 class GroupMessageAdmin(admin.ModelAdmin):
-    list_display = ['sender', 'group', 'message_preview', 'message_type', 'is_reply', 'is_edited', 'timestamp']
+    list_display = ['id','sender', 'group', 'message_preview', 'message_type','doc', 'image', 'is_reply', 'is_edited', 'timestamp']
     list_filter = ['message_type', 'is_edited', 'timestamp', 'group']
     search_fields = ['content', 'sender__username', 'group__name']
     readonly_fields = ['timestamp', 'edited_at', 'is_reply']

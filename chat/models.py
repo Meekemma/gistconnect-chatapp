@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.core.validators import FileExtensionValidator
 from django.contrib.auth import get_user_model
 import uuid
 
@@ -122,14 +123,18 @@ class GroupMessage(models.Model):
     MESSAGE_TYPE_CHOICES = [
         ('text', 'Text'),
         ('image', 'Image'),
-        ('file', 'File'),
-        ('system', 'System'),
+        ('doc', 'Doc'),
     ]
-
+    
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     group = models.ForeignKey(GroupChatRoom, on_delete=models.CASCADE, related_name='messages')
     sender = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='group_messages_sent')
     content = models.TextField()
     message_type = models.CharField(max_length=20, choices=MESSAGE_TYPE_CHOICES, default='text')
+    doc = models.FileField(upload_to='group_messages/files/', null=True, blank=True,
+                            validators=[FileExtensionValidator(allowed_extensions=['pdf', 'docx', 'xlsx', 'zip', 'mp4'])])
+    image = models.ImageField(upload_to='group_messages/images/', null=True, blank=True)
+
     reply_to = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='replies')
     timestamp = models.DateTimeField(auto_now_add=True)
     is_edited = models.BooleanField(default=False)
