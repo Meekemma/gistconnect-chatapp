@@ -46,7 +46,7 @@ class GroupChatRoomAdmin(admin.ModelAdmin):
             'fields': ('name', 'description', 'created_by')
         }),
         ('Settings', {
-            'fields': ('is_private', 'max_members', 'is_active')
+            'fields': ('is_private', 'is_active')  
         }),
         ('System Info', {
             'fields': ('id', 'created_at', 'updated_at', 'member_count_display'),
@@ -66,6 +66,7 @@ class GroupChatRoomAdmin(admin.ModelAdmin):
     
     def get_queryset(self, request):
         return super().get_queryset(request).select_related('created_by')
+
 
 
 class GroupMemberInline(admin.TabularInline):
@@ -103,7 +104,7 @@ class GroupMemberAdmin(admin.ModelAdmin):
 
 @admin.register(GroupMessage)
 class GroupMessageAdmin(admin.ModelAdmin):
-    list_display = ['sender', 'group', 'message_preview', 'message_type', 'is_reply', 'is_edited', 'timestamp']
+    list_display = ['id','sender', 'group', 'message_preview', 'message_type','doc', 'image', 'is_reply', 'is_edited', 'timestamp']
     list_filter = ['message_type', 'is_edited', 'timestamp', 'group']
     search_fields = ['content', 'sender__username', 'group__name']
     readonly_fields = ['timestamp', 'edited_at', 'is_reply']

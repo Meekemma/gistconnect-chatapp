@@ -5,8 +5,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from django.db.models import Q
 from django.contrib.auth import get_user_model
-from .models import *
-from .serializers import PrivateChatRoomSerializer,MessageSerializer
+from ..models import *
+from chat.serializers import PrivateChatRoomSerializer,MessageSerializer
 
 User = get_user_model()
 
@@ -103,10 +103,10 @@ def get_user_message(request, room_id):
     if room.participant_1 != request.user and room.participant_2 != request.user:
         return Response({'error': 'You are not authorized to view this chat'}, status=status.HTTP_403_FORBIDDEN)
 
-    # ✅ Mark all unread messages sent to this user as read
+    # Mark all unread messages sent to this user as read
     room.messages.filter(is_read=False).exclude(sender=request.user).update(is_read=True)
 
-    # ✅ Get all messages in order
+    # Get all messages in order
     messages = room.messages.all().order_by('-timestamp')
 
     serializer = MessageSerializer(messages, many=True)

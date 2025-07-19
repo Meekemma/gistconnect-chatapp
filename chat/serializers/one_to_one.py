@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import PrivateChatRoom, Message
+from chat.models import *
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -61,3 +61,33 @@ class MessageSerializer(serializers.ModelSerializer):
             'is_read'
         ]
         read_only_fields = ['id', 'timestamp', 'conversation', 'sender']
+
+
+class GroupChatRoomSerializer(serializers.ModelSerializer):
+    class Meta:
+        models = GroupChatRoom
+        fields = [
+            'id',
+            'name',
+            'description',
+            'created_by',
+            'is_private',
+            'max_members',
+            'is_active',
+            'created_at',
+            'updated_at'
+        ]
+        read_only=['id','max_number','created_at', 'updated_at']
+
+        def validate_name(self, value):
+            if value == int:
+                raise serializers.ValidationError("Name of the group can not be a number")
+            if len(value) >= 15:
+                raise serializers.ValidationError(" group name can not exceed 15")
+
+
+
+
+
+
+
