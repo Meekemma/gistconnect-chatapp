@@ -2,9 +2,9 @@ name: Django CI
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "development" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "development" ]
 
 jobs:
   build:
@@ -44,3 +44,10 @@ jobs:
         DEBUG: 'False'
       run: |
         pytest
+
+
+    - name: Install Ruff
+        run: pip install ruff
+
+    - name: Run Ruff
+      run: ruff .

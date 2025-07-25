@@ -51,6 +51,7 @@ python-dateutil==2.9.0.post0
 python-dotenv==1.1.1
 redis==6.2.0
 requests==2.32.4
+ruff==0.12.5
 service-identity==24.2.0
 setuptools==80.9.0
 six==1.17.0
